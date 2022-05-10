@@ -21,7 +21,7 @@ in
     }
   ]
 , loggingConfig =
-  { fileHandlers   = [fileHandlers "./logs/tracker.log" LogLevel.Debug]
+  { fileHandlers   = [fileHandlers "./logs/faucet.log" LogLevel.Debug]
   , levelOverrides = [] : List { _1 : Text, _2 : LogLevel }
   }
 , explorerConfig =
@@ -39,6 +39,10 @@ in
   { secretFile   = "/home/dex/cardano-dex-backend/executor/ts.json"
   , keyPass      = "secret"
   , cardanoStyle = False
+  }
+, outputStoreConfig =
+  { storePath       = "./data/funding_store"
+  , createIfMissing = True
   }
 , reCaptchaSecret = "secret"
 }

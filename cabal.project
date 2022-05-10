@@ -275,8 +275,13 @@ source-repository-package
 
 source-repository-package
   type: git
+  location: https://github.com/daleiz/rocksdb-haskell
+  tag: 109af08f95b40f458d4933e3725ecb3e59337c39
+
+source-repository-package
+  type: git
   location: https://github.com/ergolabs/cardano-dex-sdk-haskell
-  tag: e408a06e86f08c829902f4a8cd83a549555fbb40
+  tag: 77a3879b8a381211347ab52dde1767d19964a938
   subdir:
     cardano-tx
     ergo-hs-common
