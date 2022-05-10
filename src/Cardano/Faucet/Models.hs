@@ -34,7 +34,7 @@ newtype AckUtxo = AckUtxo
   deriving stock (Eq, Show, Generic)
 
 instance FromJSON AckUtxo where
-  parseJSON (String s) = case splitOn "#" (T.unpack s) of
+  parseJSON (String s) = case splitOn ":" (T.unpack s) of
     [txId, idx] -> pure . AckUtxo $ TxOutRef (fromString txId) (read idx) -- todo: unsafe fromString
     _           -> fail "Invalid TxOutRef format"
   parseJSON _ = fail "Expected a string"

@@ -1,6 +1,6 @@
 cabal-version:      2.4
 name:               cardano-faucet
-version:            0.1.6.0
+version:            0.1.7.1
 
 author:             ErgoLabs
 maintainer:         ErgoLabs
@@ -108,6 +108,7 @@ library
                   , streamly
                   , mtl == 2.2.2
                   , unliftio-core == 0.2.0.1
+                  , resourcet == 1.2.4.3
                   , unagi-chan
                   , wai-cors == 0.2.7
                   , warp == 3.3.17
@@ -128,8 +129,10 @@ library
                   , plutus-contract == 0.1.0.0
                   , cardano-slotting == 0.1.0.0
                   , prettyprinter == 1.7.0
+                  , data-default == 0.7.1.1
                   , split == 0.2.3.4
                   , http-conduit == 2.3.8
+                  , rocksdb-haskell-jprupp == 2.1.3
 
 executable cardano-faucet-exe
     default-language: Haskell2010

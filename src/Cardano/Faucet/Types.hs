@@ -20,7 +20,8 @@ import Dhall.Core (Expr(..), Chunks(..))
 import qualified Cardano.Api as C
 import qualified Ledger.Tx.CardanoAPI as Interop
 import Ledger (AssetClass, Address)
-import Ledger.Value (assetClass)
+import Ledger.Value (assetClass, AssetClass (AssetClass))
+import Plutus.V1.Ledger.Value (toString)
 
 newtype ReCaptchaSecret = ReCaptchaSecret { getSecret :: String }
   deriving stock (Eq, Show, Ord, Generic)
@@ -31,8 +32,11 @@ newtype ReCaptchaToken = ReCaptchaToken { getToken :: String }
   deriving newtype FromJSON
 
 newtype DripAsset = DripAsset { getDripAsset :: AssetClass }
-  deriving stock (Eq, Show, Ord, Generic)
+  deriving stock (Eq, Ord, Generic)
   deriving newtype ToJSON
+
+instance Show DripAsset where
+  show (DripAsset (AssetClass (cs, tn))) = show cs <> assetClassSep <> toString tn
 
 instance FromJSON DripAsset where
   parseJSON (String s) = either fail pure $ dripAssetFromString $ T.unpack s

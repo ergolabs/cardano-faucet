@@ -4,6 +4,7 @@ module Cardano.Faucet.Configs
   , ExecutionConfig(..)
   , WalletConfig(..)
   , NodeConfig(..)
+  , OutputsStoreConfig(..)
   , loadAppConfig
   ) where
 
@@ -21,14 +22,15 @@ import WalletAPI.TrustStore
 import Cardano.Faucet.Types (DripAsset(..), ReCaptchaSecret)
 
 data AppConfig = AppConfig
-  { httpConfig       :: HttpConfig
-  , executionConfigs :: [ExecutionConfig]
-  , loggingConfig    :: LoggingConfig
-  , explorerConfig   :: ExplorerConfig
-  , txAssemblyConfig :: TxAssemblyConfig
-  , nodeConfig       :: NodeConfig
-  , walletConfig     :: WalletConfig
-  , reCaptchaSecret  :: ReCaptchaSecret
+  { httpConfig        :: HttpConfig
+  , executionConfigs  :: [ExecutionConfig]
+  , loggingConfig     :: LoggingConfig
+  , explorerConfig    :: ExplorerConfig
+  , txAssemblyConfig  :: TxAssemblyConfig
+  , nodeConfig        :: NodeConfig
+  , walletConfig      :: WalletConfig
+  , reCaptchaSecret   :: ReCaptchaSecret
+  , outputStoreConfig :: OutputsStoreConfig
   }
   deriving (Generic, FromDhall)
 
@@ -58,6 +60,12 @@ data WalletConfig = WalletConfig
   { secretFile   :: SecretFile
   , keyPass      :: KeyPass
   , cardanoStyle :: Bool 
+  }
+  deriving (Generic, FromDhall)
+
+data OutputsStoreConfig = OutputsStoreConfig
+  { storePath :: FilePath
+  , cacheSize :: Natural
   }
   deriving (Generic, FromDhall)
 

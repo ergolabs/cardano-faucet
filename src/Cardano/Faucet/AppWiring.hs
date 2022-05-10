@@ -8,6 +8,7 @@ import RIO
 import GHC.Num (naturalToInt)
 
 import Control.Concurrent (forkIO)
+import Control.Monad.Trans.Resource
 import System.Logging.Hlog (makeLogging, MakeLogging (forComponent), Logging (Logging, infoM))
 
 import qualified Data.Map as Map
@@ -31,14 +32,18 @@ import Cardano.Faucet.Http.Service (mkFaucet)
 import Cardano.Faucet.Http.Server (runHttpServer)
 import Cardano.Faucet.Services.ReCaptcha (mkReCaptcha)
 
+import qualified Database.RocksDB as Rocks
+
 newtype App m = App { runApp :: m () }
 
 mkApp
   :: UnliftIO IO
   -> AppConfig
-  -> IO (App IO)
-mkApp ul appconf@AppConfig{walletConfig=WalletConfig{..}, ..} = do
+  -> Rocks.DB
+  -> ResIO (App IO)
+mkApp ul appconf@AppConfig{walletConfig=WalletConfig{..}, ..} db = do
   mkLogging  <- makeLogging loggingConfig
+  fundOuts   <- mkFundingOutputs db mkLogging
   trustStore <-
     if cardanoStyle
       then mkTrustStoreUnsafe C.AsPaymentKey (unSigningKeyFile secretFile)
@@ -53,16 +58,14 @@ mkApp ul appconf@AppConfig{walletConfig=WalletConfig{..}, ..} = do
 
     mkExecutorFor conf@ExecutionConfig{queueSize, dripAsset} = do
       rq   <- mkRequestQueue $ naturalToInt queueSize
-      fo   <- mkFundingOutputs mkLogging dripAsset
-      exec <- mkExecutor mkLogging conf rq fo transactions
-      pure (dripAsset, rq, fo, exec)
+      exec <- mkExecutor mkLogging conf rq fundOuts transactions
+      pure (dripAsset, rq, exec)
 
   resolver <- mkOutputResolver explorer mkLogging
   modules  <- mapM mkExecutorFor executionConfigs
   let
-    queues    = Map.fromList $ modules <&> (\(a, q, _, _) -> (a, q))
-    fundOuts  = Map.fromList $ modules <&> (\(a, _, o, _) -> (a, o))
-    executors = modules <&> (\(_, _, _, exec) -> exec)
+    queues    = Map.fromList $ modules <&> (\(a, q, _) -> (a, q))
+    executors = modules <&> (\(_, _, exec) -> exec)
 
   reCaptcha <- mkReCaptcha reCaptchaSecret mkLogging
   faucet    <- mkFaucet queues fundOuts resolver reCaptcha mkLogging appconf
